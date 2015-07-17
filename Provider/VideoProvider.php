@@ -1,6 +1,6 @@
 <?php 
 namespace Maesbox\VideoBundle\Provider;
-
+ 
 use Sonata\MediaBundle\Provider\BaseProvider;
 use Sonata\MediaBundle\Entity\BaseMedia as Media;
 use Sonata\MediaBundle\Model\MediaInterface;
@@ -436,14 +436,14 @@ class VideoProvider extends BaseProvider
     */
     protected function setFileContents(MediaInterface $media, $contents = null)
     {
-        if (!$contents) 
-        {
+        $file = $this->getFilesystem()->get(sprintf('%s/%s', $this->generatePath($media), $media->getProviderReference()), true);
+
+        if (!$contents) {
             $contents = $media->getBinaryContent()->getRealPath();
         }
-        $destination = sprintf('%s/%s/',$this->getFilesystem()->getAdapter()->getDirectory(), $this->generatePath($media));
-        if(!is_dir($destination))
-            mkdir($destination,775,true);
-        move_uploaded_file($contents,$destination.$media->getProviderReference());
+
+        $metadata = $this->metadata ? $this->metadata->get($media, $file->getName()) : array();
+        $file->setContent(file_get_contents($contents), $metadata);
     }
 
     /**
